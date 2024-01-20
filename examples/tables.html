@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heart Rate Simulation</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 50px;
+    }
+
+    #chart-container {
+      width: 300px;
+      height: 200px;
+    }
+
+    #result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="chart-container">
+  <canvas id="chart"></canvas>
+</div>
+
+<div id="result"></div>
+
+<script>
+  // Function to generate random heart rate readings
+  function generateRandomReading() {
+    return Math.floor(Math.random() * (120 - 60 + 1)) + 60; // Random number between 60 and 120
+  }
+
+  // Function to simulate heart rate chart
+  function simulateHeartRate() {
+    const chartContainer = document.getElementById('chart-container');
+    const resultDiv = document.getElementById('result');
+
+    const readings = [];
+    const duration = 20; // in seconds
+    const interval = 1000; // update every second
+    let timer = 0;
+
+    const ctx = document.getElementById('chart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: Array.from({ length: duration }, (_, i) => i + 1),
+        datasets: [{
+          label: 'Heart Rate',
+          borderColor: 'pink',
+          data: [],
+          fill: false,
+        }]
+      },
+      options: {
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'bottom',
+            min: 0,
+            max: duration,
+          },
+          y: {
+            min: 50,
+            max: 130,
+          }
+        }
+      }
+    });
+
+    function updateChart() {
+      const currentTime = timer++;
+      const heartRate = generateRandomReading();
+      readings.push(heartRate);
+
+      // Update chart data
+      chart.data.datasets[0].data = readings;
+      chart.update();
+
+      if (currentTime === duration) {
+        // Simulation complete, display results
+        displayResults();
+      } else {
+        setTimeout(updateChart, interval);
+      }
+    }
+
+    // Start the simulation after a 10-second delay
+    setTimeout(updateChart, 10000);
+
+    // Function to display results
+    function displayResults() {
+      const maxRate = Math.max(...readings);
+      const minRate = Math.min(...readings);
+
+      resultDiv.innerHTML = `Highest Heart Rate: ${maxRate} bpm<br>Lowest Heart Rate: ${minRate} bpm`;
+
+      // Diagnose and advise
+      if (maxRate > 100 || minRate < 60) {
+        resultDiv.innerHTML += '<br>You should consult a doctor for further evaluation.';
+      } else {
+        resultDiv.innerHTML += '<br>Your heart rate seems within normal range. Keep up with a healthy lifestyle!';
+      }
+    }
+  }
+
+  simulateHeartRate();
+</script>
+
+</body>
+</html>
