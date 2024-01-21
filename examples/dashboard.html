@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+7<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -121,90 +121,98 @@
 <div id="result"></div>
 
 <script>
-  function generateRandomReading() {
-    return Math.floor(Math.random() * (120 - 60 + 1)) + 60;
+function generateRandomReading() {
+  // Generate realistic readings with some below 40 and above 100
+  const randomValue = Math.random();
+  if (randomValue < 0.1) {
+    return Math.floor(Math.random() * 30) + 1; // Generate below 40
+  } else if (randomValue > 0.9) {
+    return Math.floor(Math.random() * (110 - 100 + 1)) + 100; // Generate above 100
+  } else {
+    return Math.floor(Math.random() * (100 - 40 + 1)) + 40; // Generate between 40 and 100
   }
+}
 
-  function simulateHeartRate() {
-    const chartContainer = document.getElementById('chart-container');
-    const resultDiv = document.getElementById('result');
-    const retryButton = document.getElementById('retry-button');
+function simulateHeartRate() {
+  const chartContainer = document.getElementById('chart-container');
+  const resultDiv = document.getElementById('result');
+  const retryButton = document.getElementById('retry-button');
 
-    const readings = [];
-    const duration = 20;
-    const interval = 1000;
-    let timer = 0;
+  const readings = [];
+  const duration = 20;
+  const interval = 1000;
+  let timer = 0;
 
-    const ctx = document.getElementById('chart').getContext('2d');
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: Array.from({ length: duration }, (_, i) => i + 1),
-        datasets: [{
-          label: 'Heart Rate',
-          borderColor: 'pink',
-          data: [],
-          fill: false,
-        }]
-      },
-      options: {
-        scales: {
-          x: {
-            type: 'linear',
-            position: 'bottom',
-            min: 0,
-            max: duration,
-          },
-          y: {
-            min: 50,
-            max: 130,
-          }
+  const ctx = document.getElementById('chart').getContext('2d');
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: Array.from({ length: duration }, (_, i) => i + 1),
+      datasets: [{
+        label: 'Heart Rate',
+        borderColor: 'pink',
+        data: [],
+        fill: false,
+      }]
+    },
+    options: {
+      scales: {
+        x: {
+          type: 'linear',
+          position: 'bottom',
+          min: 0,
+          max: duration,
+        },
+        y: {
+          min: 30, // Updated minimum range to 30
+          max: 110, // Updated maximum range to 110
         }
       }
-    });
-
-    function updateChart() {
-      const currentTime = timer++;
-      const heartRate = generateRandomReading();
-      readings.push(heartRate);
-
-      chart.data.datasets[0].data = readings;
-      chart.update();
-
-      if (currentTime === duration) {
-        displayResults();
-        retryButton.style.display = 'block';
-      } else {
-        setTimeout(updateChart, interval);
-      }
     }
+  });
 
-    setTimeout(updateChart, 10000);
+  function updateChart() {
+    const currentTime = timer++;
+    const heartRate = generateRandomReading();
+    readings.push(heartRate);
 
-    function displayResults() {
-      const maxRate = Math.max(...readings);
-      const minRate = Math.min(...readings);
+    chart.data.datasets[0].data = readings;
+    chart.update();
 
-      resultDiv.innerHTML = `Highest Heart Rate: ${maxRate} bpm<br>Lowest Heart Rate: ${minRate} bpm`;
-
-      if (maxRate > 100 || minRate < 60) {
-        resultDiv.innerHTML += '<br>You should consult a doctor for further evaluation.';
-      } else {
-        resultDiv.innerHTML += '<br>Your heart rate seems within normal range. Keep up with a healthy lifestyle!';
-      }
-    }
-
-    function retryChart() {
-      retryButton.style.display = 'none';
-      timer = 0;
-      readings.length = 0;
-      chart.data.datasets[0].data.length = 0;
-      resultDiv.innerHTML = '';
-      setTimeout(updateChart, 10000);
+    if (currentTime === duration) {
+      displayResults();
+      retryButton.style.display = 'block';
+    } else {
+      setTimeout(updateChart, interval);
     }
   }
 
-  simulateHeartRate();
+  setTimeout(updateChart, 10000);
+
+  function displayResults() {
+    const maxRate = Math.max(...readings);
+    const minRate = Math.min(...readings);
+
+    resultDiv.innerHTML = `Highest Heart Rate: ${maxRate} bpm<br>Lowest Heart Rate: ${minRate} bpm`;
+
+    if (maxRate > 100 || minRate < 40) {
+      resultDiv.innerHTML += '<br>You should consult a doctor for further evaluation.';
+    } else {
+      resultDiv.innerHTML += '<br>Your heart rate seems within normal range. Keep up with a healthy lifestyle!';
+    }
+  }
+
+  function retryChart() {
+    retryButton.style.display = 'none';
+    timer = 0;
+    readings.length = 0;
+    chart.data.datasets[0].data.length = 0;
+    resultDiv.innerHTML = '';
+    setTimeout(updateChart, 10000);
+  }
+}
+
+simulateHeartRate();
 </script>
 
 </body>
